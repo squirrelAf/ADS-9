@@ -2,6 +2,9 @@
 #ifndef INCLUDE_TREE_H_
 #define INCLUDE_TREE_H_
 
+#include <vector>
+#include <memory>
+
 /// Узел дерева перестановок
 struct DINode {
     char                     key;                // символ, хранящийся в узле
