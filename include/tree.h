@@ -2,37 +2,64 @@
 #ifndef INCLUDE_TREE_H_
 #define INCLUDE_TREE_H_
 
+#include <iostream>
 #include <vector>
 #include <memory>
 
-/// Узел дерева перестановок
-struct DINode {
-    char                     key;                // символ, хранящийся в узле
-    std::vector<std::unique_ptr<DINode>> child;  // потомки
+// Структура узла дерева
+struct PMTree {
+    char symbol; // символ, если лист
+    std::shared_ptr<PMTree> left;
+    std::shared_ptr<PMTree> right;
+    bool isLeaf;
 
-    explicit DINode(char k) : key(k) {}
+    // конструктор для листа
+    PMTree(char s) : symbol(s), left(nullptr), right(nullptr), isLeaf(true) {}
+
+    // конструктор для внутреннего узла
+    PMTree(std::shared_ptr<PMTree> l, std::shared_ptr<PMTree> r)
+        : left(l), right(r), isLeaf(false) {}
 };
 
-/// Дерево вариантов (Permutation-tree)
-class PMTree {
- public:
-    explicit PMTree(const std::vector<char>& in);      // построение дерева
-    const DINode*  root()  const { return root_.get(); }
-    size_t         size()  const { return n_; }        // ширина алфавита
-    size_t         fac()   const { return factorial_; }
+// Функция для построения дерева вариантов из вектора символов
+std::shared_ptr<PMTree> buildTree(const std::vector<char>& symbols) {
+    // Создаем вектор листьев
+    std::vector<std::shared_ptr<PMTree>> nodes;
+    for (char s : symbols) {
+        nodes.push_back(std::make_shared<PMTree>(s));
+    }
 
- private:
-    std::unique_ptr<DINode> root_;
-    size_t                  n_   = 0;
-    size_t                  factorial_ = 1;
+    // Построение дерева, объединяя в пары
+    while (nodes.size() > 1) {
+        std::vector<std::shared_ptr<PMTree>> newLevel;
 
-    void buildLevel(DINode* parent, const std::vector<char>& rest);
-};
+        // Объединяем по два узла
+        for (size_t i = 0; i + 1 < nodes.size(); i += 2) {
+            newLevel.push_back(std::make_shared<PMTree>(nodes[i], nodes[i + 1]));
+        }
 
-/// --- API из задания ---------------------------------------------------------
-std::vector<std::vector<char>> getAllPerms(const PMTree& tree);
-std::vector<char>              getPerm1(const PMTree& tree, size_t num);
-std::vector<char>              getPerm2(const PMTree& tree, size_t num);
+        // Если нечетное число узлов, добавляем последний без пар
+        if (nodes.size() % 2 != 0) {
+            newLevel.push_back(nodes.back());
+        }
 
+        nodes = newLevel;
+    }
 
+    // Осталось один корень
+    return nodes.front();
+}
+
+// Функция для вывода дерева (например, в предфиксном порядке)
+void printTree(const std::shared_ptr<PMTree>& node, int depth = 0) {
+    if (!node) return;
+    for (int i = 0; i < depth; ++i) std::cout << "  ";
+    if (node->isLeaf) {
+        std::cout << "Leaf: " << node->symbol << std::endl;
+    } else {
+        std::cout << "Node" << std::endl;
+        printTree(node->left, depth + 1);
+        printTree(node->right, depth + 1);
+    }
+}
 #endif  // INCLUDE_TREE_H_
