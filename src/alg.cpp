@@ -3,6 +3,7 @@
 #include  <fstream>
 #include  <locale>
 #include  <cstdlib>
+#include <vector>
 #include  "tree.h"
 
 std::vector<std::vector<char>> PMTree::getAllPerms() {
