@@ -19,7 +19,6 @@ class PMTree {
  private:
   PMNode* root;
   std::vector<char> elems;
-
   void build(PMNode* node, std::vector<char> rem);
 
  public:
