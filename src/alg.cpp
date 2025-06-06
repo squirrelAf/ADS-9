@@ -1,57 +1,81 @@
 // Copyright 2022 NNTU-CS
-#include  <iostream>
-#include  <fstream>
-#include  <locale>
-#include  <cstdlib>
+#include <algorithm>
 #include <vector>
-#include  "tree.h"
+#include "tree.h"
 
-std::vector<std::vector<char>> PMTree::getAllPerms() {
-  std::vector<std::vector<char>> peres;
-  std::vector<char> current;
-  collectPerms(root_node, current, peres);
-  return peres;
+PMTree::PMTree(const std::vector<char>& vec) {
+  elems = vec;
+  std::sort(elems.begin(), elems.end());
+  root = new PMNode('*');
+  build(root, elems);
 }
 
-std::vector<char> getPerm1(PMTree& PMtree, int erin) {
-  std::vector<std::vector<char>> allPerms = PMtree.getAllPerms();
-  if (erin > 0 && erin <= allPerms.size()) {
-    return allPerms[erin - 1];
+void PMTree::build(PMNode* node, std::vector<char> rem) {
+  if (rem.empty())
+    return;
+
+  for (size_t i = 0; i < rem.size(); ++i) {
+    PMNode* child = new PMNode(rem[i]);
+    node->children.push_back(child);
+
+    std::vector<char> nextRem = rem;
+    nextRem.erase(nextRem.begin() + i);
+    build(child, nextRem);
   }
-  return {};
 }
 
-std::vector<char> getPerm2(PMTree& PMtree, int erin) {
-  int totalPerms = 1;
-  int elementsCount = PMtree.root_node->child_node.size();
-  for (int i = 1; i <= elementsCount; ++i) {
-    totalPerms *= i;
+void dfs(PMNode* node, std::vector<char>& path,
+         std::vector<std::vector<char>>& res) {
+  if (node->value != '*') {
+    path.push_back(node->value);
   }
-  if (erin < 1 || erin > totalPerms) {
+  if (node->children.empty()) {
+    res.push_back(path);
+  } else {
+    for (auto child : node->children) {
+      dfs(child, path, res);
+    }
+  }
+  if (!path.empty())
+    path.pop_back();
+}
+
+std::vector<std::vector<char>> getAllPerms(PMTree& tree) {
+  std::vector<std::vector<char>> perms;
+  std::vector<char> path;
+  dfs(tree.getRoot(), path, perms);
+  return perms;
+}
+
+std::vector<char> getPerm1(PMTree& tree, int num) {
+  std::vector<std::vector<char>> perms = getAllPerms(tree);
+  if (num < 1 || num > static_cast<int>(perms.size()))
     return {};
-  }
-  std::vector<int> factorials;
-  int fact = 1;
-  for (int i = 1; i <= elementsCount; ++i) {
-    fact *= i;
-    factorials.push_back(fact);
-  }
+  return perms[num - 1];
+}
+
+std::vector<char> getPerm2(PMTree& tree, int num) {
   std::vector<char> result;
-  PMNode* current_node = PMtree.root_node;
-  erin--;
-  while (true) {
-    if (current_node->child_node.empty()) {
-      break;
-    }
-    int numChild = current_node->child_node.size();
-    int fact = (numChild == 1) ? 1 : factorials[numChild - 2];
-    int index = erin / fact;
-    if (index >= numChild) {
-      return {};
-    }
-    result.push_back(current_node->child_node[index]->symbol);
-    erin %= fact;
-    current_node = current_node->child_node[index];
+  const std::vector<char>& elems = tree.getElems();
+  int n = elems.size();
+  int total = 1;
+  for (int i = 2; i <= n; ++i)
+    total *= i;
+  if (num < 1 || num > total)
+    return {};
+
+  std::vector<char> rem = elems;
+  --num;  // zero-based index
+
+  for (int i = n; i > 0; --i) {
+    int fact = 1;
+    for (int j = 2; j < i; ++j)
+      fact *= j;
+    int idx = num / fact;
+    result.push_back(rem[idx]);
+    rem.erase(rem.begin() + idx);
+    num %= fact;
   }
+
   return result;
 }
