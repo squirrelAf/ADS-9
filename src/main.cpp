@@ -9,9 +9,9 @@ int main() {
   std::vector<char> in = {'1', '2', '3'};
   PMTree tree(in);
 
-  auto perms = getAllPerms(tree);
+  auto peremen = getAllPerms(tree);
   std::cout << "All permutations:\n";
-  for (const auto& p : perms) {
+  for (const auto& p : peremen) {
     for (char c : p)
       std::cout << c;
     std::cout << '\n';
@@ -38,36 +38,36 @@ int main() {
 
     PMTree t(alpha);
 
-    int total = 1;
+    int tot = 1;
     for (int i = 2; i <= n; ++i)
-      total *= i;
+      tot *= i;
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, total);
+    std::uniform_int_distribution<> dis(1, tot);
 
-    int target = dis(gen);
+    int targ = dis(gen);
 
-    auto start1 = std::chrono::high_resolution_clock::now();
+    auto starting1 = std::chrono::high_resolution_clock::now();
     getAllPerms(t);
-    auto end1 = std::chrono::high_resolution_clock::now();
+    auto ending1 = std::chrono::high_resolution_clock::now();
 
-    auto start2 = std::chrono::high_resolution_clock::now();
-    getPerm1(t, target);
-    auto end2 = std::chrono::high_resolution_clock::now();
+    auto starting2 = std::chrono::high_resolution_clock::now();
+    getPerm1(t, targ);
+    auto ending2 = std::chrono::high_resolution_clock::now();
 
-    auto start3 = std::chrono::high_resolution_clock::now();
-    getPerm2(t, target);
-    auto end3 = std::chrono::high_resolution_clock::now();
+    auto starting3 = std::chrono::high_resolution_clock::now();
+    getPerm2(t, targ);
+    auto ending3 = std::chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double> dur1 = end1 - start1;
-    std::chrono::duration<double> dur2 = end2 - start2;
-    std::chrono::duration<double> dur3 = end3 - start3;
+    std::chrono::duration<double> d1 = ending1 - starting1;
+    std::chrono::duration<double> d2 = ending2 - starting2;
+    std::chrono::duration<double> d3 = ending3 - starting3;
 
     std::cout << "n = " << n
-              << ", getAllPerms: " << dur1.count()
-              << "s, getPerm1: " << dur2.count()
-              << "s, getPerm2: " << dur3.count() << "s\n";
+              << ", getAllPerms: " << d1.count()
+              << "s, getPerm1: " << d2.count()
+              << "s, getPerm2: " << d3.count() << "s\n";
   }
 
   return 0;
